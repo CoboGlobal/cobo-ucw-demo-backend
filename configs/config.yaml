@@ -1,0 +1,60 @@
+server:
+  http:
+    addr: 0.0.0.0:8000
+    timeout: 300s # just for debug, default: 2s
+  grpc:
+    addr: 0.0.0.0:9000
+    timeout: 300s # just for debug, default: 2s
+data:
+  database:
+    driver: mysql
+    source: ucw:ucw_password@tcp(127.0.0.1:3306)/test?charset=utf8mb4&parseTime=True&loc=Local&timeout=30s
+  redis: # not used yet
+    addr: 127.0.0.1:6379
+    read_timeout: 0.2s
+    write_timeout: 0.2s
+  log:
+    slow_threshold: 0.2s
+    level: DEBUG  # "DEBUG" "INFO" "WARN" "ERROR" "FATAL"
+ucw:
+  auth:
+    api_key: "8630ec34-04f6-4cc7-8bb3-674332a3350e"
+    expire_duration: 86400s
+  cobo_portal:
+    apikey: "<YOUR_COBO_PORTAL_APIKEY>"
+    debug: false
+    env: 2
+  project_id: "<YOUR_COBO_PORTAL_PROJECT_ID>"
+  threshold: 2
+  participant: 2
+  sync_tss_request_duration: 3s
+  sync_transaction_duration: 3s
+log:
+  std:
+    enable: true
+    level: debug
+  std_file:
+    enable: true
+    level: debug
+    file_name: logs/ucw-backend.log # base filename, will rotate
+    max_size: 20  # megabytes
+    max_backup: 7
+    max_age: 30 # days
+  json_file:
+    enable: false
+    level: debug
+    file_name: logs/ucw-backend.json # base filename, will rotate
+    max_size: 20  # megabytes
+    max_backup: 7
+    max_age: 30 # days
+  sentry:
+    enable: false
+    levels:
+      - error
+      - fatal
+      - panic
+    dsn: # your sentry dsn
+    environment:
+    release: ucw-backend-demo@1.0.0
+    debug: true
+    traces_sample_rate: 1.0

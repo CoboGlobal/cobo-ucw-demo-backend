@@ -1,0 +1,27 @@
+networks:
+  default:
+    name: ucw
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root-pwd
+      - MYSQL_DATABASE=test
+      - MYSQL_USER=ucw
+      - MYSQL_PASSWORD=ucw_password
+  ucw-backend:
+    container_name: ucw-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+      - "9000:9000"
+    volumes:
+      - ./configs/config-docker.yaml:/data/conf/config.yaml:ro
+    depends_on:
+      - mysql
