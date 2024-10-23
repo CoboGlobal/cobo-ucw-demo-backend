@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package helloworld.v1;
+import "errors/errors.proto";
+
+option go_package = "cobo-ucw-backend/api/helloworld/v1;v1";
+option java_multiple_files = true;
+option java_package = "helloworld.v1";
+option objc_class_prefix = "APIHelloworldV1";
+
+enum ErrorReason {
+  // 设置缺省错误码
+  option (errors.default_code) = 400;
+
+  GREETER_UNSPECIFIED = 0;
+
+  USER_NOT_FOUND = 1 [(errors.code) = 404];
+  COBO_NODE_INVALID = 2;
+  KEY_GEN_DIFFERENT_USERS = 3;
+  UNSUPPORTED_TRANSACTION_TYPE = 4;
+  VAULT_NOT_FOUND = 5 [(errors.code) = 404];
+  UNAUTHORIZED = 6 [(errors.code) = 403];
+  INVALID_REQUEST_PARAMS = 7;
+}

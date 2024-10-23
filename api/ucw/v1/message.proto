@@ -1,0 +1,212 @@
+syntax = "proto3";
+
+package ucw.v1;
+
+option go_package = "cobo-ucw-backend/api/ucw/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.ucw.v1";
+option java_outer_classname = "UCWProtoV1";
+
+import "openapi/v3/annotations.proto";
+
+message User {
+  string user_id = 1;
+  string email = 2;
+}
+
+message Vault {
+  enum Status {
+    UNSPECIFIED = 0;
+    CREATED = 1;
+    MAIN_GROUP_CREATED = 20;
+    MAIN_GENERATED = 30;
+  }
+  string vault_id = 1;
+  string name = 2;
+  string main_group_id = 3;
+  string project_id = 4;
+  string cobo_node_id = 5;
+  Status status = 6;
+}
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_ADMIN = 1;
+  ROLE_MAIN = 2;
+  ROLE_RECOVERY = 3;
+}
+
+message UserVault {
+  string user_id = 1;
+  string vault_id = 2;
+}
+
+message UserNode {
+  string user_id = 1;
+  string node_id = 2;
+  Role role = 3;
+}
+
+message Group {
+  enum GroupType {
+    UNSPECIFIED = 0;
+    MAIN_GROUP = 1;
+    RECOVERY_GROUP = 2;
+  }
+  string group_id = 1;
+  GroupType group_type = 2;
+}
+
+
+message GroupInfo {
+  Group group = 1;
+  repeated GroupNode group_nodes = 2;
+}
+
+message GroupNode {
+  string group_id = 1;
+  string user_id = 2;
+  string node_id = 3;
+  string holder_name = 4;
+}
+
+message Amount {
+  string value = 1;
+  Token token = 2;
+}
+
+message Wallet {
+  string wallet_id = 1;
+  string name = 2;
+}
+
+message WalletInfo {
+  Wallet wallet = 1;
+}
+
+message Token {
+  string token_id = 1;
+  string name = 2;
+  int32 decimal = 3;
+  string symbol = 4;
+  string chain = 5;
+  string icon_url = 6;
+}
+
+message TokenBalance {
+  Token token = 1;
+  string balance = 2;
+  string abs_balance = 3;
+  string available = 4;
+  string locked = 5;
+}
+
+message TokenAddresses {
+  TokenBalance token = 1;
+  repeated Address addresses = 2;
+}
+
+message Address {
+  string address = 1;
+  string chain_id = 2;
+  string wallet_id = 3;
+  string path = 4;
+  string pubkey = 5;
+  string encoding = 6;
+}
+
+message TssRequest {
+  enum Type {
+    UNSPECIFIED = 0;
+    GENERATE_MAIN_KEY = 1;
+    GENERATE_RECOVERY_KEY = 2;
+    RECOVERY_MAIN_KEY = 3;
+  }
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_PENDING_KEYHOLDER_CONFIRMATION = 10;
+    STATUS_KEYHOLDER_CONFIRMATION_FAILED = 20;
+    STATUS_KEY_GENERATING = 30;
+    STATUS_MPC_PROCESSING = 35;
+    STATUS_KEY_GENERATING_FAILED = 40;
+    STATUS_SUCCESS = 50;
+  }
+  string request_id = 1;
+  Type type = 2;
+  Status status = 3;
+  string source_group_id = 4;
+  string target_group_id = 5;
+  string create_timestamp = 6;
+}
+
+message Fee {
+  enum Level {
+    UNSPECIFIED = 0;
+    SLOW = 1;
+    RECOMMEND = 2;
+    FAST = 3;
+    CUSTOMIZE = 4;
+  }
+  string fee_per_byte = 1;
+  string gas_price = 2;
+  string gas_limit = 3;
+  Level level = 4;
+  string max_fee = 5;
+  string max_priority_fee = 6;
+  string token_id = 7;
+  string fee_amount = 8;
+}
+
+message Transaction {
+  enum Type {
+    UNSPECIFIED = 0;
+    WITHDRAW = 1;
+    DEPOSIT = 2;
+  }
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_CREATED = 1;
+    STATUS_SUBMITTED = 2;
+    STATUS_PENDING_SCREENING = 3;
+    STATUS_PENDING_AUTHORIZATION = 4;
+    STATUS_QUEUED = 5;
+    STATUS_PENDING_SIGNATURE = 6;
+    STATUS_BROADCASTING = 7;
+    STATUS_CONFIRMING = 8;
+    STATUS_PENDING = 9;
+    STATUS_SUCCESS = 10;
+    STATUS_FAILED = 11;
+    STATUS_REJECTED = 12;
+  }
+  enum SubStatus {
+    SUB_STATUS_UNSPECIFIED = 0;
+    SUB_STATUS_PENDING_SIGNATURE_CAN_BE_APPROVED = 100;
+    SUB_STATUS_PENDING_SIGNATURE_HAS_APPROVED = 101;
+  }
+  string transaction_id = 1;
+  Type type = 2;
+  string chain = 3;
+  Amount amount = 4;
+  string from = 5;
+  string to = 6;
+  string create_timestamp = 7;
+  string tx_hash = 8;
+  Fee fee = 9;
+  Status status = 10;
+  string wallet_id = 11;
+  SubStatus sub_status = 12;
+  string external_id = 13;
+}
+
+
+message ErrorResponse {
+  option (openapi.v3.schema) = {
+    title: "This err response";
+  };
+  int32 code = 1;
+  string reason = 2;
+  string message = 3;
+}
+
+
+

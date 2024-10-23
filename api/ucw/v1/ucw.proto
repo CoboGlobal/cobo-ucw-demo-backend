@@ -1,0 +1,945 @@
+syntax = "proto3";
+
+package ucw.v1;
+
+option go_package = "cobo-ucw-backend/api/ucw/v1;v1";
+option java_multiple_files = true;
+option java_package = "dev.kratos.api.ucw.v1";
+option java_outer_classname = "UCWProtoV1";
+
+import "google/api/annotations.proto";
+import "openapi/v3/annotations.proto";
+// the validate rules:
+// https://github.com/envoyproxy/protoc-gen-validate
+import "validate/validate.proto";
+import "ucw/v1/message.proto";
+import "google/protobuf/empty.proto";
+
+option (openapi.v3.document) = {
+  info: {
+    title: "cobo ucw demo backend server";
+    version: "v1.0.0";
+    description: "cobo ucw backend server";
+    contact: {
+      name: "Cobo Global";
+      url: "https://www.cobo.com/";
+      email: "";
+    }
+    license: {
+      name: "Apache License";
+      url: "";
+    }
+  }
+  components: {
+    security_schemes: {
+      additional_properties: [
+        {
+          name: "bearerAuth";
+          value: {
+            security_scheme: {
+              type: "http";
+              scheme: "bearer";
+              bearer_format: "JWT";
+            }
+          }
+        }
+      ]
+    },
+    responses: {
+      additional_properties: {
+        name: "ErrResponse";
+        value: {
+          response: {
+            description: "default err response",
+            content: {
+              additional_properties: {
+                name: "application/json",
+                value: {
+                  schema: {
+                    reference: {
+                      _ref: "#/components/schemas/ucw.v1.ErrorResponse"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  servers: [
+    {
+      url: "http://localhost:8000/v1";
+      description: "local environment server";
+    },
+    {
+      url: "https://api.ucw-demo.sandbox.cobo.com/v1";
+      description: "sandbox environment server";
+    }
+  ],
+
+};
+
+service UserControlWallet {
+  rpc Ping(PingRequest) returns(PingReply) {
+    option (google.api.http) = {
+      get: "/ping",
+    };
+  }
+
+  rpc Login(LoginRequest) returns(LoginReply) {
+    option (google.api.http) = {
+      post: "/users/login",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc BindNode(BindNodeRequest) returns(BindNodeReply) {
+    option (google.api.http) = {
+      post: "/users/node/bind",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetUserInfo(GetUserInfoRequest) returns(GetUserInfoReply) {
+    option (google.api.http) = {
+      get: "/users/info",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc InitVault(InitVaultRequest) returns(InitVaultReply) {
+    option (google.api.http) = {
+      post: "/vaults/init",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc ListGroups(ListGroupsRequest) returns(ListGroupsReply) {
+    option (google.api.http) = {
+      get: "/vaults/{vault_id}/groups",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetGroup(GetGroupRequest) returns(GetGroupReply) {
+    option (google.api.http) = {
+      get: "/vaults/{vault_id}/group/{group_id}",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GenerateMainGroup(GenerateMainGroupRequest) returns (GenerateMainGroupReply) {
+    option (google.api.http) = {
+      post: "/vaults/{vault_id}/tss/generate_main_group",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GenerateRecoveryGroup(GenerateRecoveryGroupRequest) returns (GenerateRecoveryGroupReply) {
+    option (google.api.http) = {
+      post: "/vaults/{vault_id}/tss/generate_recovery_group",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc RecoverMainGroup(RecoverMainGroupRequest) returns (RecoverMainGroupReply) {
+    option (google.api.http) = {
+      post: "/vaults/{vault_id}/tss/recover_main_group",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc ListTssRequest(ListTssRequestRequest) returns (ListTssRequestReply){
+    option (google.api.http) = {
+      get: "/vaults/{vault_id}/tss/requests",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetTssRequest(GetTssRequestRequest) returns (GetTssRequestReply){
+    option (google.api.http) = {
+      get: "/vaults/{vault_id}/tss/requests/{tss_request_id}",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc DisasterRecovery(DisasterRecoveryRequest) returns (DisasterRecoveryReply) {
+    option (google.api.http) = {
+      get: "/vaults/{vault_id}/disaster_recovery",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc CreateWallet(CreateWalletRequest) returns (CreateWalletReply) {
+    option (google.api.http) = {
+      post: "/vaults/{vault_id}/wallets",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetWalletInfo(GetWalletInfoRequest) returns (GetWalletInfoReply) {
+    option (google.api.http) = {
+      get: "/wallets/{wallet_id}",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc AddWalletAddress(AddWalletAddressRequest) returns (AddWalletAddressReply) {
+    option (google.api.http) = {
+      post: "/wallets/{wallet_id}/address",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc ListWalletToken(ListWalletTokenRequest) returns (ListWalletTokenReply) {
+    option (google.api.http) = {
+      get: "/wallets/{wallet_id}/tokens",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetWalletToken(GetWalletTokenRequest) returns (GetWalletTokenReply) {
+    option (google.api.http) = {
+      get: "/wallets/{wallet_id}/tokens/{token_id}",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetTokenBalance(GetTokenBalanceRequest) returns (GetTokenBalanceReply) {
+    option (google.api.http) = {
+      get: "/wallets/{wallet_id}/tokens/{token_id}/balance",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc EstimateTransactionFee(EstimateTransactionFeeRequest) returns (EstimateTransactionFeeReply){
+    option (google.api.http) = {
+      post: "/wallets/{wallet_id}/transactions/estimate_fee",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionReply) {
+    option (google.api.http) = {
+      post: "/wallets/{wallet_id}/transactions",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc ListTransaction(ListTransactionRequest) returns (ListTransactionReply) {
+    option (google.api.http) = {
+      get: "/wallets/{wallet_id}/transactions",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc GetTransaction(GetTransactionRequest) returns (GetTransactionReply) {
+    option (google.api.http) = {
+      get: "/wallets/transactions/{transaction_id}",
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc TransactionWebhook(TransactionWebhookRequest) returns (TransactionWebhookReply){
+    option (google.api.http) = {
+      post: "/transactions/webhook",
+      body: "*"
+    };
+  }
+
+  rpc CoboCallback(CoboCallbackRequest) returns (CoboCallbackReply){
+    option (google.api.http) = {
+      post: "/transactions/callback",
+      body: "*"
+    };
+  }
+
+  rpc TssRequestWebhook(TssRequestWebhookRequest) returns (TssRequestWebhookReply){
+    option (google.api.http) = {
+      post: "/tss_requests/webhook",
+      body: "*"
+    };
+  }
+
+  rpc TssRequestReport(TssRequestReportRequest) returns (TssRequestReportReply) {
+    option (google.api.http) = {
+      post: "/tss_requests/{tss_request_id}/report",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc TransactionReport(TransactionReportRequest) returns (TransactionReportReply) {
+    option (google.api.http) = {
+      post: "/transactions/{transaction_id}/report",
+      body: "*"
+    };
+    option(openapi.v3.operation) = {
+      responses:
+      {
+        response_or_reference: {
+          name: "default",
+          value: {
+            reference: {
+              _ref: "#/components/responses/ErrResponse"
+            }
+          }
+        }
+      }
+    };
+  }
+
+  rpc ErrDummyRpc(google.protobuf.Empty) returns (ErrorResponse) {
+    option (google.api.http) = {
+      post: "/dummy/error",
+      body: "*"
+    };
+  }
+}
+
+message PingRequest{
+}
+
+message PingReply{
+  string timestamp = 1;
+}
+
+message LoginRequest{
+  string email = 1 [(validate.rules).string.email = true];
+}
+
+message LoginReply {
+  string token = 1;
+}
+
+message GetUserInfoRequest {
+}
+
+message GetUserInfoReply {
+  User user = 1;
+  Vault vault = 2;
+  Wallet wallet = 3;
+  repeated UserNode user_nodes = 4;
+}
+
+message BindNodeRequest {
+  string node_id = 1;
+}
+
+message BindNodeReply {
+  UserNode user_node = 1;
+}
+
+message InitVaultRequest {
+}
+
+message InitVaultReply {
+  Vault vault = 1;
+}
+
+message ListGroupsRequest{
+  string vault_id = 1;
+  Group.GroupType group_type = 2;
+}
+
+message ListGroupsReply{
+  repeated Group groups = 1;
+}
+
+message GetGroupRequest{
+  string vault_id = 1;
+  string group_id = 2;
+}
+
+message GetGroupReply{
+  GroupInfo group = 1;
+}
+
+message CreateWalletRequest {
+  string vault_id = 1;
+  string name = 2 [(validate.rules).string = {min_len: 1, max_len: 32}];
+}
+
+message CreateWalletReply {
+  string wallet_id = 1;
+}
+
+message GetWalletInfoRequest {
+  string wallet_id = 1;
+}
+
+message GetWalletInfoReply {
+  WalletInfo wallet_info = 1;
+}
+
+message GenerateMainGroupRequest {
+  string vault_id = 1;
+  string node_id = 2;
+}
+
+message GenerateMainGroupReply {
+  string tss_request_id = 1;
+}
+
+message GenerateRecoveryGroupRequest {
+  string vault_id = 1;
+  repeated string node_ids = 2;
+}
+
+message GenerateRecoveryGroupReply {
+  string tss_request_id = 1;
+}
+
+message RecoverMainGroupRequest {
+  string vault_id = 1;
+  string node_id = 2;
+  string source_group_id = 3;
+}
+
+message RecoverMainGroupReply {
+  string tss_request_id = 1;
+}
+
+message ListTssRequestRequest{
+  string vault_id = 1;
+  string node_id = 2;
+  TssRequest.Status status = 3;
+}
+
+message ListTssRequestReply{
+  repeated TssRequest tss_requests = 1;
+}
+
+message GetTssRequestRequest{
+  string tss_request_id = 1;
+  string vault_id = 2;
+}
+
+message GetTssRequestReply {
+  TssRequest tss_request = 1;
+}
+
+message DisasterRecoveryRequest {
+  string vault_id = 1;
+}
+
+message DisasterRecoveryReply {
+  Vault vault = 1;
+  Wallet wallet = 2;
+  repeated Address addresses = 3;
+}
+
+message GetTssRequest{
+  string tss_request_id = 1;
+}
+
+message GetTssReply{
+  TssRequest tss_request = 1;
+}
+
+message EstimateTransactionFeeRequest {
+  string from = 1;
+  string to = 2;
+  string token_id = 3;
+  string amount = 4;
+  Transaction.Type type = 5;
+  string wallet_id = 6;
+}
+
+message EstimateTransactionFeeReply {
+  Fee slow = 1;
+  Fee recommend = 2;
+  Fee fast = 3;
+}
+
+message CreateTransactionRequest {
+  string from = 1;
+  string to = 2;
+  string amount = 3;
+  string token_id = 4;
+  string chain = 5;
+  Transaction.Type type = 6;
+  Fee fee = 7 [(validate.rules).message.required = true];
+  string wallet_id = 8;
+}
+
+message CreateTransactionReply {
+  string transaction_id = 1;
+}
+
+message AddWalletAddressRequest {
+  string wallet_id = 1;
+  string chain_id = 2;
+}
+
+message AddWalletAddressReply{
+  Address address = 1;
+}
+
+message ListWalletTokenRequest{
+  string wallet_id = 1;
+}
+
+message ListWalletTokenReply{
+  repeated TokenBalance list = 1;
+}
+
+message GetWalletTokenRequest{
+  string wallet_id = 1;
+  string token_id = 2;
+}
+
+message GetWalletTokenReply{
+  Wallet wallet = 1;
+  TokenAddresses token_addresses = 2;
+}
+
+message GetTokenBalanceRequest{
+  string wallet_id = 1;
+  string token_id = 2;
+  string address = 3;
+}
+
+message GetTokenBalanceReply {
+  TokenBalance token_balance = 1;
+}
+
+message ListTransactionRequest{
+  string wallet_id = 1;
+  string token_id = 2;
+  Transaction.Type transaction_type = 3;
+}
+
+message ListTransactionReply{
+  repeated Transaction list = 1;
+}
+
+message GetTransactionRequest{
+  string transaction_id = 1;
+}
+
+message GetTransactionReply{
+  Transaction transaction = 1;
+}
+
+message CoboTransaction {
+  message Fee {
+    string fee_type = 1;
+    string token_id = 2;
+    string fee_used = 3;
+    string gas_used = 4;
+    string effective_gas_price = 5;
+    string max_fee_per_gas = 6;
+    string max_priority_fee_per_gas = 7;
+    string gas_limit = 8;
+    string fee_rate = 9;
+    string fee_amount = 10;
+  }
+  message BlockInfo {
+    int64 block_number = 1;
+    int64 block_time = 2;
+    string block_hash = 3;
+  }
+  message Source {
+    string source_type = 1;
+    string wallet_id = 2;
+    repeated string addresses = 3;
+  }
+  message Destination {
+    string destination_type = 1;
+    string address = 2;
+    string change_address = 3;
+    string amount = 4;
+    string wallet_id = 5;
+    string wallet_type = 6;
+    string wallet_sub_type = 7;
+  }
+  message UTXO {
+    string tx_hash = 1;
+    int64 vout_n = 2;
+  }
+  message RawTxInfo {
+    int64 used_nonce = 1;
+    repeated UTXO selected_utxos = 2;
+    string raw_tx = 3;
+  }
+  string wallet_id = 1;
+  string transaction_id = 2;
+  string type = 3;
+  string status = 4;
+  string token_id = 5;
+  string chain_id = 6;
+  string failed_reason = 7;
+  string request_id = 8;
+  string sub_status = 9;
+  int64 confirmed_num = 10;
+  int64 confirming_threshold = 11;
+  Source source = 12;
+  Destination destination = 13;
+  RawTxInfo raw_tx_info = 14;
+  Fee fee = 15;
+  string transaction_hash = 16;
+  BlockInfo block_info = 17;
+  string description = 18;
+}
+
+message TransactionWebhookRequest{
+  string event_id = 1;
+  string url = 2;
+  int64 created_timestamp = 3;
+  string type = 4;
+  CoboTransaction data = 5;
+}
+
+message TransactionWebhookReply{
+}
+
+message CoboCallbackRequest{
+  string wallet_id = 1;
+  string transaction_id = 2;
+  string type = 3;
+}
+
+message CoboCallbackReply{
+}
+
+message CoboTssRequest {
+  string tss_request_id = 1;
+  string status = 2;
+}
+
+message TssRequestWebhookRequest {
+  string event_id = 1;
+  string url = 2;
+  int64 created_timestamp = 3;
+  string type = 4;
+  CoboTssRequest data = 5;
+}
+
+message TssRequestWebhookReply {
+
+}
+
+message TssRequestReportRequest {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ACTION_APPROVED = 1;
+    ACTION_REJECTED = 2;
+  }
+  string tss_request_id = 1;
+  Action action = 2;
+}
+
+message TssRequestReportReply {
+
+}
+
+message TransactionReportRequest {
+  enum Action {
+    ACTION_UNSPECIFIED = 0;
+    ACTION_APPROVED = 1;
+    ACTION_REJECTED = 2;
+  }
+  string transaction_id = 1;
+  Action action = 2;
+}
+
+message TransactionReportReply {
+
+}
+
+
+
+
+
+
+
+
