@@ -47,10 +47,10 @@ erDiagram
     }
 
     user ||--|| vault: has
-    user||--o{ node : "owned by"
+    user||--o{ node : "owns"
     vault ||--|{ wallet : contains
     vault ||--o{ request : "contains"
-    vault ||--o{ group : "controlled by"
+    vault ||--o{ group : "owns"
     wallet||--o{ tx : contains
     wallet ||--o{ addr : contains
     group ||--o{ node : contains

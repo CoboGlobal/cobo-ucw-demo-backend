@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"database/sql"
 	"strconv"
 
 	v1 "cobo-ucw-backend/api/ucw/v1"
@@ -90,10 +91,13 @@ func BuildTransactionFromWebhook(req *v1.CoboTransaction, logger *log.Helper) (*
 				MaxFee:         maxFeePerGas,
 				FeeUsed:        feeUsed,
 			},
-			Status:     int64(statusSet[CoboWaas2.TransactionStatus(req.GetStatus())]),
-			ExternalID: req.GetTransactionId(),
-			TokenID:    req.GetTokenId(),
-			BlockNum:   req.GetBlockInfo().GetBlockNumber(),
+			Status: int64(statusSet[CoboWaas2.TransactionStatus(req.GetStatus())]),
+			ExternalID: sql.NullString{
+				String: req.GetTransactionId(),
+				Valid:  true,
+			},
+			TokenID:  req.GetTokenId(),
+			BlockNum: req.GetBlockInfo().GetBlockNumber(),
 			Extra: model.Extra{
 				FailedReason:        req.GetFailedReason(),
 				ConfirmedNum:        req.GetConfirmedNum(),
@@ -140,7 +144,7 @@ func (t *Transaction) ToProto() *v1.Transaction {
 		Status:          v1.Transaction_Status(t.Status),
 		WalletId:        t.WalletID,
 		SubStatus:       v1.Transaction_SubStatus(t.SubStatus),
-		ExternalId:      t.ExternalID,
+		ExternalId:      t.ExternalID.String,
 	}
 }
 

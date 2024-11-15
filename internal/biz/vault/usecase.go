@@ -153,6 +153,27 @@ func (u Usecase) CreateKeyGroup(ctx context.Context, vaultID string, groupNodes 
 		keyGroupType = CoboWaas2.KEYSHAREHOLDERGROUPTYPE_RECOVERY_GROUP
 	}
 
+	var keyGroup *CoboWaas2.KeyShareHolderGroup
+	if groupType == v1.Group_MAIN_GROUP {
+		groups, _, err := u.client.WalletsMPCWalletsAPI.ListKeyShareHolderGroups(u.client.WithContext(ctx), vaultID).KeyShareHolderGroupType(CoboWaas2.KEYSHAREHOLDERGROUPTYPE_MAIN_GROUP).Execute()
+		if err != nil {
+			u.logger.Errorf("CreateKeyGroup ListKeyShareHolderGroups vaultID %s, group type %s, err %v", vaultID, groupType, err)
+			return "", err
+		}
+		for _, each := range groups.Data {
+			each := each
+			if each.GetStatus() == CoboWaas2.KEYSHAREHOLDERGROUPSTATUS_NEW {
+				keyGroup = &each
+				_, _, err := u.client.WalletsMPCWalletsAPI.DeleteKeyShareHolderGroupById(u.client.WithContext(ctx), vaultID, keyGroup.GetKeyShareHolderGroupId()).Execute()
+				if err != nil {
+					u.logger.Errorf("CreateKeyGroup DeleteKeyShareHolderGroupById vaultID %s, group type %s, groupID %v err %v", vaultID, groupType, keyGroup.GetKeyShareHolderGroupId(), err)
+					return "", err
+				}
+				break
+			}
+		}
+	}
+
 	keyGroup, _, err := u.client.WalletsMPCWalletsAPI.CreateKeyShareHolderGroup(u.client.WithContext(ctx), vaultID).CreateKeyShareHolderGroupRequest(CoboWaas2.CreateKeyShareHolderGroupRequest{
 		KeyShareHolderGroupType: keyGroupType,
 		Participants:            u.ucw.Participant,
@@ -167,6 +188,17 @@ func (u Usecase) CreateKeyGroup(ctx context.Context, vaultID string, groupNodes 
 	for _, each := range groupNodes {
 		each.SetGroupID(keyGroup.GetKeyShareHolderGroupId())
 	}
+
+	var tssGroups []model.TssGroup
+
+	for _, each := range keyGroup.TssKeyShareGroups {
+		tssGroups = append(tssGroups, model.TssGroup{
+			TssGroupID: each.GetTssKeyShareGroupId(),
+			Curve:      string(each.GetCurve()),
+			Pubkey:     each.GetRootPubkey(),
+		})
+	}
+
 	groupID, err := keyGroup.GetKeyShareHolderGroupId(), u.data.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		if groupType == v1.Group_MAIN_GROUP {
 			if err := u.vaultRepo.Tx(tx).UpdateByVaultID(ctx, Vault{
@@ -183,6 +215,7 @@ func (u Usecase) CreateKeyGroup(ctx context.Context, vaultID string, groupNodes 
 				VaultID:   vaultID,
 				GroupID:   keyGroup.GetKeyShareHolderGroupId(),
 				GroupType: int64(groupType),
+				TssGroups: tssGroups,
 			},
 		}); err != nil {
 			return err
@@ -340,4 +373,17 @@ func (u Usecase) SyncTssRequests(ctx context.Context, tssRequests []*TssRequest)
 		}
 	}
 	return nil
+}
+
+func (u Usecase) ApproveTssRequest(ctx context.Context, tssRequestID string) error {
+	return nil
+}
+func (u Usecase) RejectTssRequest(ctx context.Context, tssRequestID string) error {
+	tssRequest, err := u.tssRequestRepo.GetByTssRequestID(ctx, tssRequestID)
+	if err != nil {
+		return err
+	}
+
+	tssRequest.Status = int64(v1.TssRequest_STATUS_KEYHOLDER_CONFIRMATION_FAILED)
+	return u.tssRequestRepo.Update(ctx, *tssRequest)
 }

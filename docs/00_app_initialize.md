@@ -1,8 +1,7 @@
-
 ```mermaid
 sequenceDiagram
     autonumber
-    participant App as UCW Demo App
+    participant App as Client App
     participant SDK as UCW SDK
 
     App ->> SDK: Init

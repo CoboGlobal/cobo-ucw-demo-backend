@@ -15,10 +15,19 @@ type Group struct {
 }
 
 func (g *Group) ToProto() *v1.Group {
-	return &v1.Group{
+	group := &v1.Group{
 		GroupId:   g.GroupID,
 		GroupType: v1.Group_GroupType(g.GroupType),
+		TssGroups: nil,
 	}
+	for _, each := range g.TssGroups {
+		group.TssGroups = append(group.TssGroups, &v1.TssGroup{
+			TssGroupId: each.TssGroupID,
+			Curve:      each.Curve,
+			Pubkey:     each.Pubkey,
+		})
+	}
+	return group
 }
 
 func (g *Group) ToProtoGroupInfo() *v1.GroupInfo {
