@@ -149,7 +149,6 @@ func (s *UserControlWalletService) InitVault(ctx context.Context, req *pb.InitVa
 			return nil, err
 		}
 	}
-
 	return &pb.InitVaultReply{
 		Vault: vault.ToProto(),
 	}, nil
@@ -665,7 +664,11 @@ func (s *UserControlWalletService) TransactionReport(ctx context.Context, req *p
 	if !ok {
 		return nil, pb.ErrorUnauthorized("TransactionReport")
 	}
-
+	if req.Action == pb.TransactionReportRequest_ACTION_APPROVED {
+		return &pb.TransactionReportReply{}, s.TransactionUsecase.ApproveTransaction(ctx, req.GetTransactionId())
+	} else if req.Action == pb.TransactionReportRequest_ACTION_REJECTED {
+		return &pb.TransactionReportReply{}, s.TransactionUsecase.RejectTransaction(ctx, req.GetTransactionId())
+	}
 	s.logger.Infof("TransactionReport %+v", req)
 	return &pb.TransactionReportReply{}, nil
 }
@@ -674,6 +677,11 @@ func (s *UserControlWalletService) TssRequestReport(ctx context.Context, req *pb
 	_, ok := auth.FromContext(ctx)
 	if !ok {
 		return nil, pb.ErrorUnauthorized("TssRequestReport")
+	}
+	if req.Action == pb.TssRequestReportRequest_ACTION_APPROVED {
+		return &pb.TssRequestReportReply{}, s.VaultUsecase.ApproveTssRequest(ctx, req.GetTssRequestId())
+	} else if req.Action == pb.TssRequestReportRequest_ACTION_REJECTED {
+		return &pb.TssRequestReportReply{}, s.VaultUsecase.RejectTssRequest(ctx, req.GetTssRequestId())
 	}
 	s.logger.Infof("TssRequestRepost %+v", req)
 	return &pb.TssRequestReportReply{}, nil

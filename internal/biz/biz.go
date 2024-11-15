@@ -29,6 +29,8 @@ type TransactionUsecase interface {
 	GetTransaction(ctx context.Context, transactionID string) (*transaction.Transaction, error)
 	SyncTransactions(ctx context.Context, transactions []*transaction.Transaction) error
 	SyncDepositTransaction(ctx context.Context, transaction *transaction.Transaction) (*transaction.Transaction, error)
+	RejectTransaction(ctx context.Context, transactionID string) error
+	ApproveTransaction(ctx context.Context, transactionID string) error
 }
 
 type WalletUsecase interface {
@@ -53,6 +55,8 @@ type VaultUsecase interface {
 	GetGroup(ctx context.Context, vaultID, groupID string) (*vault.Group, error)
 	GetTssRequest(ctx context.Context, tssRequestID string) (*vault.TssRequest, error)
 	SyncTssRequests(ctx context.Context, tssRequests []*vault.TssRequest) error
+	ApproveTssRequest(ctx context.Context, tssRequestID string) error
+	RejectTssRequest(ctx context.Context, tssRequestID string) error
 }
 
 type UserUsecase interface {

@@ -1,6 +1,8 @@
 package model
 
 import (
+	"database/sql"
+
 	"github.com/shopspring/decimal"
 	"gorm.io/gorm"
 )
@@ -18,7 +20,7 @@ type Transaction struct {
 	TxHash        string          `gorm:"size:255;not null;default:''"`
 	Fee           Fee             `gorm:"type:json;serializer:json"`
 	Status        int64           `gorm:"not null;default:0"`
-	ExternalID    string          `gorm:"size:255;uniqueIndex:ux_transactions_external_id"` // cobo transaction id
+	ExternalID    sql.NullString  `gorm:"size:255;uniqueIndex:ux_transactions_external_id"` // cobo transaction id
 	TokenID       string          `gorm:"size:255;not null;default:''"`
 	BlockNum      int64           `gorm:"not null;default:0"`
 	Extra         Extra           `gorm:"type:json;serializer:json"`

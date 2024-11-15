@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"context"
+	"database/sql"
 	"strings"
 
 	v1 "cobo-ucw-backend/api/ucw/v1"
@@ -85,7 +86,10 @@ func (u Usecase) SubmitTransaction(ctx context.Context, transaction *Transaction
 				transaction.TransactionID, transaction.Chain, transaction.From, transaction.To, transaction.Type, err)
 			return "", err
 		}
-		transaction.ExternalID = res.GetTransactionId()
+		transaction.ExternalID = sql.NullString{
+			String: res.GetTransactionId(),
+			Valid:  true,
+		}
 		transaction.Status = int64(v1.Transaction_STATUS_SUBMITTED)
 		return transaction.TransactionID, u.repo.Update(ctx, *transaction)
 	}
@@ -155,7 +159,7 @@ func (u Usecase) SyncDepositTransaction(ctx context.Context, transaction *Transa
 		WalletID:        transaction.WalletID,
 		TokenID:         transaction.TokenID,
 		TransactionType: v1.Transaction_DEPOSIT,
-		ExternalID:      transaction.ExternalID,
+		ExternalID:      transaction.ExternalID.String,
 	})
 	if err != nil {
 		return nil, err
@@ -248,11 +252,11 @@ func (u Usecase) SyncTransactions(ctx context.Context, transactions []*Transacti
 
 	transactionSet := make(map[string]*Transaction)
 	for _, each := range transactions {
-		if each.ExternalID == "" {
+		if each.ExternalID.String == "" {
 			continue
 		}
-		coboTransactionIDs = append(coboTransactionIDs, each.ExternalID)
-		transactionSet[each.ExternalID] = each
+		coboTransactionIDs = append(coboTransactionIDs, each.ExternalID.String)
+		transactionSet[each.ExternalID.String] = each
 	}
 	response, _, err := u.client.TransactionsAPI.ListTransactions(u.client.WithContext(ctx)).TransactionIds(strings.Join(coboTransactionIDs, ",")).Execute()
 	if err != nil {
@@ -281,4 +285,23 @@ func (u Usecase) SyncTransactions(ctx context.Context, transactions []*Transacti
 	}
 
 	return nil
+}
+
+func (u Usecase) RejectTransaction(ctx context.Context, transactionID string) error {
+	tx, err := u.repo.GetByTransactionID(ctx, transactionID)
+	if err != nil {
+		return err
+	}
+
+	tx.Status = int64(v1.Transaction_STATUS_REJECTED)
+	return u.repo.Update(ctx, *tx)
+}
+
+func (u Usecase) ApproveTransaction(ctx context.Context, transactionID string) error {
+	tx, err := u.repo.GetByTransactionID(ctx, transactionID)
+	if err != nil {
+		return err
+	}
+	tx.SubStatus = int64(v1.Transaction_SUB_STATUS_PENDING_SIGNATURE_HAS_APPROVED)
+	return u.repo.Update(ctx, *tx)
 }

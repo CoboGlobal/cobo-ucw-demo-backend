@@ -55,8 +55,14 @@ message Group {
   }
   string group_id = 1;
   GroupType group_type = 2;
+  repeated TssGroup tss_groups = 3;
 }
 
+message TssGroup {
+  string tss_group_id = 1;
+  string curve = 2;
+  string pubkey = 3;
+}
 
 message GroupInfo {
   Group group = 1;

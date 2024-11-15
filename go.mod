@@ -3,7 +3,7 @@ module cobo-ucw-backend
 go 1.22.1
 
 require (
-	github.com/CoboGlobal/cobo-waas2-go-sdk v1.4.0
+	github.com/CoboGlobal/cobo-waas2-go-sdk v1.5.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.4
 	github.com/getsentry/sentry-go v0.28.1
 	github.com/go-co-op/gocron/v2 v2.11.0

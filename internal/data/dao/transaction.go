@@ -8,6 +8,7 @@ import (
 	"cobo-ucw-backend/internal/data/database"
 	"cobo-ucw-backend/internal/data/model"
 
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -20,7 +21,9 @@ type Transaction struct {
 }
 
 func (d *Transaction) Update(ctx context.Context, tx transaction.Transaction) error {
-	return d.DB.WithContext(ctx).Model(&tx.Transaction).Updates(tx.Transaction).Error
+	return d.DB.WithContext(ctx).Model(&model.Transaction{
+		Model: gorm.Model{ID: tx.ID},
+	}).Updates(tx.Transaction).Error
 }
 
 func (d *Transaction) Save(ctx context.Context, tx *transaction.Transaction) (int64, error) {

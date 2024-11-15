@@ -1038,6 +1038,10 @@ components:
                 group_type:
                     type: integer
                     format: enum
+                tss_groups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/ucw.v1.TssGroup'
         ucw.v1.GroupInfo:
             type: object
             properties:
@@ -1220,6 +1224,15 @@ components:
                     type: string
                 data:
                     $ref: '#/components/schemas/ucw.v1.CoboTransaction'
+        ucw.v1.TssGroup:
+            type: object
+            properties:
+                tss_group_id:
+                    type: string
+                curve:
+                    type: string
+                pubkey:
+                    type: string
         ucw.v1.TssRequest:
             type: object
             properties:
